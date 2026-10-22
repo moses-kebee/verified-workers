@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  WORKER
+  EMPLOYER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  role          Role      @default(WORKER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  workerProfile   WorkerProfile?
+  employerProfile EmployerProfile?
+}
+
+model WorkerProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  fullName      String
+  phoneNumber   String    
+  skills        String[]  
+  location      String
+  bio           String?
+  isVerified    Boolean   @default(false)
+  hasPaidVerificationFee Boolean @default(false) 
+  resumeUrl     String?
+  createdAt     DateTime  @default(now())
+
+  unlocks       UnlockTransaction[]
+}
+
+model EmployerProfile {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  companyName   String
+  industry      String
+  createdAt     DateTime  @default(now())
+
+  unlocks       UnlockTransaction[]
+}
+
+model UnlockTransaction {
+  id            String    @id @default(cuid())
+  employerId    String
+  employer      EmployerProfile @relation(fields: [employerId], references: [id])
+  workerId      String
+  worker        WorkerProfile   @relation(fields: [workerId], references: [id])
+  amountPaid    Float
+  paymentRef    String    @unique 
+  createdAt     DateTime  @default(now())
+}

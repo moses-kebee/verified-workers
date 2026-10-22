@@ -1,8 +1,8 @@
 import prisma from '../../lib/prisma';
 import Link from 'next/link';
+import type { WorkerProfile } from '../../generated/prisma/client';
 
 export default async function WorkersPage() {
-  // Fetch all verified workers (for now, we'll just fetch all workers)
   const workers = await prisma.workerProfile.findMany({
     include: { user: true },
     orderBy: { createdAt: 'desc' },
@@ -27,7 +27,7 @@ export default async function WorkersPage() {
               <p className="text-slate-500">No workers registered yet.</p>
             </div>
           ) : (
-            workers.map((worker) => (
+            workers.map((worker: WorkerProfile) => (
               <div key={worker.id} className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-3 mb-2">
